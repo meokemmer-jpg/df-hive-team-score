@@ -1,0 +1,129 @@
+# DF-HIVE-TEAM-SCORE Configuration [CRUX-MK]
+# Welle-45-C-RETRY: Shannon-Entropy-basierte Team-Score-Engine
+# Pattern-Reuse aus DF-COSMOS-COMPLIANCE-MONITOR (K11-K16 + LC1-LC5)
+
+df_id: DF-HIVE-TEAM-SCORE
+df_name: hive-team-score
+version: 0.1.0-PHASE-1
+status: PHASE-1-PRODUCTION
+crux-mk: true
+
+description: |
+  HIVE-Team-Score basierend auf Shannon-Entropy H = -sum(p*log2(p))
+  ueber 10 AgentClasses. H_MAX = log2(10) = 3.32 (coding.md §10).
+  Aggregiert Team-Diversity zu Composite-Score [0,1].
+
+# === SAE-v8 Integration ===
+
+sae_v8_compliance:
+  h_max: 3.32                  # coding.md §10
+  q_scale_integral: 11.11      # coding.md §3 (Q_SCALE_EMA / GAMMA)
+  f_cum_decay: 0.98            # coding.md §10 (HWZ ~34 Tage)
+  agent_classes_count: 10
+  dual_import_safe: true       # LAZY-IMPORT-PATTERN, kein sae_v8.xxx
+
+# === Tier-2 Pflicht-Check ===
+
+tier_2_check:
+  lambda_per_month_estimate: 8     # 2x/Woche
+  narrow_scope: "Shannon-Entropy ueber AgentClass-Distribution, deterministisch"
+  determinism: 1.0
+  rollback_seconds: 5
+  test_coverage_target: 0.90
+  k0_protected: true
+  q0_measurable: true
+  escalation_after_n_fails: 2
+  rho_budget_eur_day: 0
+  audit_trail: branch-hub/audit/df-hive-team-score.jsonl
+
+# === K11-K16 Akzeptanz-Kriterien ===
+
+k11_cascade_containment:
+  cascade_isolation: hard
+  failure_blast_radius: 1
+  dependency_dlq_strategy: "per-Team eigene Severity"
+
+k12_distillation_resistenz:
+  output_feeds_into_training: false
+  provenance_required_in_output: true
+  non_llm_validation_layer: shannon_entropy_deterministic
+
+k13_independent_ground_truth:
+  external_anchor_type: github_filesystem
+  external_anchor_validation_frequency: "pro-Audit-Run"
+  pre_action_domain_check:
+    env_tag: "dev/staging/prod"
+    mount_point: "Google-Drive-mount"
+    network_region: "local-only (deterministisch, kein API-Call)"
+  pre_action_backup_check:
+    backup_status: "branch-hub Git-Mirror"
+    replication_lag: "n/a (read-only)"
+  pre_action_blast_radius_check:
+    blast_radius: "read_only_distribution + jsonl_append"
+    reversibility_class: "state_only"
+
+k14_human_override_decay:
+  override_complexity: single_command
+  override_documentation_freshness_days: 30
+  martin_review_cadence: monthly
+  bus_factor_handover_drilled: false
+
+k15_entropy_budget:
+  entropy_added_loc_estimate: 280
+  entropy_added_concepts:
+    - ShannonEntropyCalculator
+    - TeamScoreEngine
+    - RoleDiversityTracker
+    - AdapterOrchestrator
+  entropy_justified_by_rho: "60k_eur_per_year (HIVE-Team-Score automatisiert manuelle Diversity-Reviews)"
+  entropy_subtractive_potential: "ersetzt manuelle Team-Diversity-Audits ~4h/Quartal"
+
+k16_concurrent_spawn_mutex:
+  concurrent_spawn_protection: both
+  lock_dir: /tmp/df-hive-team-score.lock
+  lock_stale_age_h: 6
+  engine_pgrep_check: true
+  lock_release_on: EXIT_INT_TERM
+
+k11b_pipeline_cost_estimate:
+  pipeline_cost_estimate_required: false
+  cost_estimate_method: static_pre_run
+  quota_budget_ceiling: 0
+  cost_overrun_action: warn
+
+# === LC1-LC5 Lose-Coupling ===
+
+lose_coupling:
+  LC1_graceful_degradation:
+    degradation_modes:
+      - full              # alle 10 Klassen
+      - degraded_8_class  # ohne META + COSMOS
+      - degraded_5_class  # nur Kern-Klassen
+      - standalone        # Single-Team-Score
+    degradation_test_required: true
+  LC2_direct_mode:
+    direct_mode_available: true
+    direct_mode_capability: 1.0
+    direct_mode_trigger: "always (deterministische Berechnung)"
+  LC3_circuit_breaker:
+    circuit_breaker_timeout_s: 10
+    circuit_breaker_open_threshold: 3
+    circuit_breaker_half_open_test_interval_s: 300
+  LC4_failure_isolation:
+    state_externalization: true
+    idempotent_operations: true
+    dependency_dlq_separate: true
+  LC5_health_check:
+    health_check_dependencies: []
+    health_check_degraded_score: 0.7
+    health_check_endpoint_or_file: "/tmp/df-hive-team-score-health.json"
+
+paths:
+  output_dir: "branch-hub/audit"
+  audit_log: "branch-hub/audit/df-hive-team-score.jsonl"
+
+severity_thresholds:
+  ok: 0.85
+  warning: 0.70
+  critical: 0.40
+  veto: 0.40
