@@ -1,0 +1,8 @@
+{
+  "df": "df-hive-team-score",
+  "ts": "2026-06-05T14:09:32.546648+00:00",
+  "ok": true,
+  "bytes": 3323,
+  "model": "qwen2.5:14b-instruct",
+  "duration_s": 56.7
+}
