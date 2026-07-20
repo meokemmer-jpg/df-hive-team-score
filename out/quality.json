@@ -1,9 +1,9 @@
 {
   "df": "df-hive-team-score",
-  "ts": "2026-07-19T15:56:39.281826+00:00",
+  "ts": "2026-07-20T03:55:34.997811+00:00",
   "maturity": "TESTED",
   "maturity_level": 4,
   "evidence_grade": 4,
-  "wargame_verdict": null,
+  "wargame_verdict": "CONDITIONAL",
   "crux": "[CRUX-MK]"
 }
